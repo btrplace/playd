@@ -16,7 +16,7 @@ import org.btrplace.scheduler.SchedulerException;
 import org.btrplace.scheduler.choco.ChocoScheduler;
 import org.btrplace.scheduler.choco.DefaultChocoScheduler;
 
-import javax.ws.rs.FormParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,11 +28,12 @@ import java.io.StringReader;
  * @author Fabien Hermenier
  */
 @Path("/solve")
-@Produces(MediaType.APPLICATION_JSON)
 public class Solver {
 
     @POST
-    public Response solve(@FormParam("instance") String in) {
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response solve(String in) {
         ModelConverter moc = new ModelConverter();
         ActionConverter aoc = new ActionConverter();
         Model mo;
