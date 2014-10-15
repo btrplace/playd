@@ -1,37 +1,38 @@
 package org.btrplace.playd.model;
 
-import org.btrplace.btrpsl.ErrorMessage;
-import org.btrplace.btrpsl.ErrorReporter;
-import org.btrplace.btrpsl.ErrorReporterBuilder;
-import org.btrplace.btrpsl.Script;
+import org.btrplace.btrpsl.*;
 
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * @author Fabien Hermenier
  */
-public class JSONErrorReporter implements ErrorReporter {
+public class JSONErrorReporter extends PlainTextErrorReporter {
 
-    @Override
-    public void append(int lineNo, int colNo, String msg) {
-        throw new UnsupportedOperationException();
+    public JSONErrorReporter(Script scr) {
+        super(scr);
     }
 
     @Override
-    public List<ErrorMessage> getErrors() {
-        throw new UnsupportedOperationException();
+    public String toString() {
+        StringBuilder b = new StringBuilder("[");
+        for (Iterator<ErrorMessage> ite = getErrors().iterator(); ite.hasNext(); ) {
+            ErrorMessage m = ite.next();
+            b.append("{")
+                .append("\"ln\": ").append(m.lineNo())
+                .append(", \"cn\":").append(m.colNo())
+                .append(", \"message\": \"").append(m.message()).append("\"}");
+            if (ite.hasNext()) {
+                b.append(",");
+            }
+        }
+        return b.append("]").toString();
     }
-
-    @Override
-    public void updateNamespace() {
-        throw new UnsupportedOperationException();
-    }
-
     public static class Builder implements ErrorReporterBuilder {
 
         @Override
         public ErrorReporter build(Script v) {
-            return new JSONErrorReporter();
+            return new JSONErrorReporter(v);
         }
     }
 

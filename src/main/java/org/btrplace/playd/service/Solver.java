@@ -16,7 +16,6 @@ import org.btrplace.scheduler.SchedulerException;
 import org.btrplace.scheduler.choco.ChocoScheduler;
 import org.btrplace.scheduler.choco.DefaultChocoScheduler;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -31,7 +30,6 @@ import java.io.StringReader;
 public class Solver {
 
     @POST
-    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response solve(String in) {
         ModelConverter moc = new ModelConverter();
@@ -43,7 +41,9 @@ public class Solver {
         JSONObject json;
         try {
             json = parse(in);
+            System.out.println(json);
             mo = moc.fromJSON((JSONObject) json.get("model"));
+            System.out.println(mo.getMapping());
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
@@ -58,12 +58,16 @@ public class Solver {
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
             ChocoScheduler scheduler = new DefaultChocoScheduler();
+            scheduler.doOptimize(false);
+            scheduler.setTimeLimit(3);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
+            if (p == null) {
+                return Response.noContent().build();
+            }
             return Response.ok(aoc.toJSON(p.getActions())).build();
         } catch (ScriptBuilderException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter()).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
         } catch (SchedulerException | JSONConverterException ex) {
-            System.err.println(ex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
