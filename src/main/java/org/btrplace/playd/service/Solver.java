@@ -8,7 +8,7 @@ import org.btrplace.btrpsl.ScriptBuilder;
 import org.btrplace.btrpsl.ScriptBuilderException;
 import org.btrplace.json.JSONConverterException;
 import org.btrplace.json.model.ModelConverter;
-import org.btrplace.json.plan.ActionConverter;
+import org.btrplace.json.plan.ReconfigurationPlanConverter;
 import org.btrplace.model.Model;
 import org.btrplace.plan.ReconfigurationPlan;
 import org.btrplace.playd.model.JSONErrorReporter;
@@ -33,7 +33,7 @@ public class Solver {
     @Produces(MediaType.APPLICATION_JSON)
     public Response solve(String in) {
         ModelConverter moc = new ModelConverter();
-        ActionConverter aoc = new ActionConverter();
+        ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
         Model mo;
         if (in == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Missing 'instance' parameter").build();
@@ -41,9 +41,7 @@ public class Solver {
         JSONObject json;
         try {
             json = parse(in);
-            System.out.println(json);
             mo = moc.fromJSON((JSONObject) json.get("model"));
-            System.out.println(mo.getMapping());
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
@@ -64,7 +62,7 @@ public class Solver {
             if (p == null) {
                 return Response.noContent().build();
             }
-            return Response.ok(aoc.toJSON(p.getActions())).build();
+            return Response.ok(rpc.toJSON(p)).build();
         } catch (ScriptBuilderException ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
         } catch (SchedulerException | JSONConverterException ex) {
