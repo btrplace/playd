@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class Store {
     public Store() {
         useCases = new ArrayList<>();
         //Mock
-        useCases.add(new UseCase("decommissioning", "deco", "", "namespace sandbox;\\n\\n" +
+        useCases.add(new UseCase("a2dfLx", "decommissioning", "deco", "", "namespace sandbox;\\n\\n" +
                 "VM[1..8] : myVMs;\\n\\n" +
                 ">>spread({VM1, VM5});\\n" +
                 "ban(VM3, @N1);\\n" +
@@ -32,20 +33,23 @@ public class Store {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list() {
-        List<String> titles = new ArrayList<>(useCases.size());
-        for (UseCase uc : useCases) {
-            titles.add(uc.title());
+    public Response list() {
+        StringBuilder res = new StringBuilder("[");
+        for (Iterator<UseCase> ite = useCases.iterator(); ite.hasNext(); ) {
+            res.append(ite.next().summary());
+            if (ite.hasNext()) {
+                res.append(",");
+            }
         }
-        return titles;
+        return Response.ok(res.append("]").toString()).build();
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{key}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(@PathParam("id") String id) {
+    public Response get(@PathParam("key") String k) {
         for (UseCase uc : useCases) {
-            if (uc.title().equals(id)) {
+            if (uc.key().equals(k)) {
                 return Response.ok(uc.toJson()).build();
             }
         }
