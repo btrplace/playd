@@ -6,6 +6,7 @@ import net.minidev.json.parser.ParseException;
 import org.btrplace.btrpsl.Script;
 import org.btrplace.btrpsl.ScriptBuilder;
 import org.btrplace.btrpsl.ScriptBuilderException;
+import org.btrplace.btrpsl.constraint.*;
 import org.btrplace.json.JSONConverterException;
 import org.btrplace.json.model.ModelConverter;
 import org.btrplace.json.plan.ReconfigurationPlanConverter;
@@ -28,6 +29,8 @@ import java.io.StringReader;
  */
 @Path("/solve")
 public class Solver {
+
+    private static ConstraintsCatalog catalog = makeCatalog();
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -53,6 +56,7 @@ public class Solver {
         try {
             String source = json.get("script").toString();
             ScriptBuilder scrBuilder = new ScriptBuilder(mo);
+            scrBuilder.setConstraintsCatalog(catalog);
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
             ChocoScheduler scheduler = new DefaultChocoScheduler();
@@ -77,5 +81,31 @@ public class Solver {
             throw new JSONConverterException("Unable to parse a JSON object");
         }
         return (JSONObject)o;
+    }
+
+    /**
+     * Build the catalog of supported constraints.
+     * @return the catalog
+     */
+    private static ConstraintsCatalog makeCatalog() {
+        DefaultConstraintsCatalog c = new DefaultConstraintsCatalog();
+        c.add(new AmongBuilder());
+        c.add(new BanBuilder());
+        c.add(new ResourceCapacityBuilder());
+        c.add(new RunningCapacityBuilder());
+        c.add(new FenceBuilder());
+        c.add(new GatherBuilder());
+        c.add(new LonelyBuilder());
+        c.add(new OfflineBuilder());
+        c.add(new OnlineBuilder());
+        c.add(new QuarantineBuilder());
+        c.add(new RootBuilder());
+        c.add(new SplitBuilder());
+        c.add(new SplitAmongBuilder());
+        c.add(new SpreadBuilder());
+        c.add(new SeqBuilder());
+        c.add(new MaxOnlineBuilder());
+        c.add(new NoDelayBuilder());
+        return c;
     }
 }
