@@ -28,7 +28,7 @@ public class Store {
                 "VM[1..8] : myVMs;\\n\\n" +
                 ">>spread({VM1, VM5});\\n" +
                 "ban(VM3, @N1);\\n" +
-                ">>maxOnline(@N[1..8], 5);";
+                ">>maxOnline(@N[1..8], 4);";
         String desc = "This use case simulates a server decommissioning operation on 3 servers facing server-based licence restrictions";
         //Mock
         useCases.add(new UseCase("a2dfLx","Server decommissioning against server-based licensing", desc, model, script));
