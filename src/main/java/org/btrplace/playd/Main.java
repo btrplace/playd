@@ -1,5 +1,8 @@
 package org.btrplace.playd;
 
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -8,11 +11,22 @@ import org.eclipse.jetty.webapp.WebAppContext;
  */
 public class Main {
 
+    public static final String MONGOHQ_URL = "MONGOHQ_URL";
+    public static DB mongoDB;
+
     public static void main(String[] args) throws Exception{
+
+        //mongodb://<user>:<password>@lennon.mongohq.com:10083/app30683431
+        if (System.getenv(MONGOHQ_URL) == null) {
+            System.err.println("No DB Url available from environment variable '" + MONGOHQ_URL + "'");
+            System.exit(1);
+        }
+        MongoClientURI uri = new MongoClientURI(System.getenv(MONGOHQ_URL));
+        MongoClient client = new MongoClient(uri);
+        mongoDB = client.getDB(uri.getDatabase());
+
         String webappDirLocation = "src/main/webapp/";
 
-        // The port that we should run on can be set into an environment variable
-        // Look for that variable and default to 8080 if it isn't there.
         String webPort = System.getenv("PORT");
         if (webPort == null || webPort.isEmpty()) {
             webPort = "8080";

@@ -14,7 +14,7 @@
         </init-param>
         <init-param>
             <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>org.btrplace.playd</param-value>
+            <param-value>org.btrplace.playd;org.codehaus.jackson.jaxrs</param-value>
         </init-param>
         <init-param>
             <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
