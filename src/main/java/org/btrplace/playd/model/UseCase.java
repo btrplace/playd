@@ -89,21 +89,27 @@ public class UseCase {
         return description;
     }
 
-    public String toJson() {
-        StringBuilder b = new StringBuilder();
-        b.append("{");
-        b.append("\"key\": \"").append(key()).append("\",");
-        b.append("\"title\": \"").append(title()).append("\",");
-        b.append("\"description\": \"").append(description()).append("\",");
-        b.append("\"model\": \"").append(model()).append("\",");
-        b.append("\"script\": \"").append(script()).append("\"");
-        return b.append("}").toString();
-    }
-
     public void hit() {
         hits++;
         lastHit = System.currentTimeMillis();
     }
+
+    public int getHits() {
+        return hits;
+    }
+
+    public void setHits(int hits) {
+        this.hits = hits;
+    }
+
+    public long getLastHit() {
+        return lastHit;
+    }
+
+    public void setLastHit(long lastHit) {
+        this.lastHit = lastHit;
+    }
+
     public String summary() {
         StringBuilder res = new StringBuilder();
         res.append("{");

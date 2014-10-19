@@ -1,12 +1,14 @@
 package org.btrplace.playd.service;
 
+import com.sun.jersey.api.core.HttpContext;
+import org.bson.types.ObjectId;
 import org.btrplace.playd.Main;
 import org.btrplace.playd.model.UseCase;
 import org.mongojack.JacksonDBCollection;
-import org.bson.types.ObjectId;
 import org.mongojack.WriteResult;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -25,11 +27,12 @@ public class Store {
     @Path("/")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response add(UseCase uc) {
+    public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
         String id = result.getSavedId();
         try {
-            return Response.created(new URI(id)).build();
+            URI uri = context.getRequest().getRequestUri();
+            return Response.created(new URI(uri.toASCIIString() + id )).build();
         } catch (URISyntaxException ex) {
             System.err.println(ex.getMessage());
         }
