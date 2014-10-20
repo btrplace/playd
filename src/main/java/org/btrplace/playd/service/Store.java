@@ -27,7 +27,10 @@ public class Store {
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
         String id = result.getSavedId();
-        return Response.ok(id).build();
+
+        //return Response.ok(id).build();
+        return Response.ok(id).header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT").build();
     }
 
     @Path("/{key}")
