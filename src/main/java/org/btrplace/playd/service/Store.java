@@ -15,13 +15,14 @@ import javax.ws.rs.core.Response;
 /**
  * @author Fabien Hermenier
  */
-@Path("/store")
+
 public class Store {
 
     private static JacksonDBCollection<UseCase, String> getJacksonDBCollection() {
         return JacksonDBCollection.wrap(Main.mongoDB.getCollection(UseCase.class.getSimpleName().toLowerCase()), UseCase.class, String.class);
     }
 
+    @Path("/store/")
     @POST
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
