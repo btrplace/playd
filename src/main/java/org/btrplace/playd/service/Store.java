@@ -1,6 +1,7 @@
 package org.btrplace.playd.service;
 
-import com.sun.jersey.api.core.HttpContext;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.bson.types.ObjectId;
 import org.btrplace.playd.Main;
 import org.btrplace.playd.model.UseCase;
@@ -8,7 +9,6 @@ import org.mongojack.JacksonDBCollection;
 import org.mongojack.WriteResult;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -22,13 +22,35 @@ public class Store {
         return JacksonDBCollection.wrap(Main.mongoDB.getCollection(UseCase.class.getSimpleName().toLowerCase()), UseCase.class, String.class);
     }
 
-    @Consumes(MediaType.APPLICATION_JSON)
+    /*@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @POST
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
         String id = result.getSavedId();
         return Response.ok(id).build();
+    } */
+
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @POST
+    public Response add(String in) {
+        JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
+        try {
+            JSONObject o = (JSONObject) p.parse(in);
+            UseCase uc = new UseCase();
+            uc.setTitle(o.getAsString("title"));
+            uc.setDescription(o.getAsString("description"));
+            uc.setScript(o.getAsString("script"));
+            uc.setModel(o.getAsString("model"));
+            uc.setHits(0);
+            uc.setLastHit(System.currentTimeMillis());
+            WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
+            String id = result.getSavedId();
+            return Response.ok(id).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
 
