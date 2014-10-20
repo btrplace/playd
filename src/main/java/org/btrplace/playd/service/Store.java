@@ -30,7 +30,7 @@ public class Store {
 
         //return Response.ok(id).build();
         return Response.ok(id).header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT").build();
+                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS").build();
     }
 
     @Path("/{key}")
