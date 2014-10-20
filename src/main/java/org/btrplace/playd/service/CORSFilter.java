@@ -24,12 +24,15 @@ public class CORSFilter implements ContainerResponseFilter {
                         // How long the results of a request can be cached in a result cache.
                 .header("Access-Control-Max-Age", "151200")
                         // As part of the response to a request, which HTTP headers can be used during the actual request.
-                .header("Access-Control-Allow-Headers", "x-requested-with,Content-Type");
+                .header("Access-Control-Allow-Headers", "x-requested-with,Content-Type,Accept");
 
         String crunchifyRequestHeader = req.getHeaderValue("Access-Control-Request-Headers");
 
         if (null != crunchifyRequestHeader && !crunchifyRequestHeader.equals(null)) {
+            System.out.println("allowed headers: " + crunchifyRequestHeader);
             crunchifyResponseBuilder.header("Access-Control-Allow-Headers", crunchifyRequestHeader);
+        } else {
+            System.out.println("No fancy headers");
         }
 
         cres.setResponse(crunchifyResponseBuilder.build());
