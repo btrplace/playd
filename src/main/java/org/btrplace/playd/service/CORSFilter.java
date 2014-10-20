@@ -19,16 +19,13 @@ public class CORSFilter implements ContainerResponseFilter {
 
         // *(allow from all servers) OR http://crunchify.com/ OR http://example.com/
         crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "*")
-                // As a part of the response to a request, which HTTP methods can be used during the actual request.
                 .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE, OPTIONS")
-                        // How long the results of a request can be cached in a result cache.
                 .header("Access-Control-Max-Age", "151200")
-                        // As part of the response to a request, which HTTP headers can be used during the actual request.
-                .header("Access-Control-Allow-Headers", "x-requested-with,Content-Type,Accept");
+                .header("Access-Control-Allow-Headers", "x-requested-by, x-requested-with, Content-Type, Accept");
 
         String crunchifyRequestHeader = req.getHeaderValue("Access-Control-Request-Headers");
 
-        if (null != crunchifyRequestHeader && !crunchifyRequestHeader.equals(null)) {
+        if (null != crunchifyRequestHeader) {
             System.out.println("allowed headers: " + crunchifyRequestHeader);
             crunchifyResponseBuilder.header("Access-Control-Allow-Headers", crunchifyRequestHeader);
         } else {
