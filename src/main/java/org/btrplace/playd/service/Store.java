@@ -11,8 +11,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * @author Fabien Hermenier
@@ -30,13 +28,7 @@ public class Store {
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
         String id = result.getSavedId();
-        try {
-            URI uri = context.getRequest().getRequestUri();
-            return Response.created(new URI(uri.toASCIIString() + id )).build();
-        } catch (URISyntaxException ex) {
-            System.err.println(ex.getMessage());
-        }
-        return Response.serverError().build();
+        return Response.ok(id).build();
     }
 
     @Path("/{key}")
