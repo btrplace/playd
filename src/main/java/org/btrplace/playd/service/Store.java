@@ -31,7 +31,7 @@ public class Store {
     }
 
     @OPTIONS
-    @Path("/")
+    @Path("/*")
     public Response getOptions() {
         return Response.ok()
                 .header("Access-Control-Allow-Origin", "*")
