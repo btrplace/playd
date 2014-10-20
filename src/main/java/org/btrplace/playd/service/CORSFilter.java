@@ -21,7 +21,7 @@ public class CORSFilter implements ContainerResponseFilter {
         crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "*")
                 .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE, OPTIONS")
                 .header("Access-Control-Max-Age", "151200")
-                .header("Access-Control-Allow-Headers", "x-requested-by, x-requested-with, Content-Type, Accept");
+                .header("Access-Control-Allow-Headers", "x-requested-by, x-requested-with, content-type, accept");
 
         String crunchifyRequestHeader = req.getHeaderValue("Access-Control-Request-Headers");
 
