@@ -18,7 +18,7 @@ public class CORSFilter implements ContainerResponseFilter {
         Response.ResponseBuilder crunchifyResponseBuilder = Response.fromResponse(cres.getResponse());
 
         crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE, OPTIONS")
+                .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE")
                 .header("Access-Control-Max-Age", "151200")
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
 
@@ -32,7 +32,7 @@ public class CORSFilter implements ContainerResponseFilter {
         }
 
         cres.setResponse(crunchifyResponseBuilder.build());
-        System.out.println(cres);
+        System.err.println(cres);
         return cres;
     }
 
