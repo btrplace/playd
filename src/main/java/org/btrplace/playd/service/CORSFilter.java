@@ -16,6 +16,7 @@ public class CORSFilter implements ContainerResponseFilter {
     public ContainerResponse filter(final ContainerRequest requestContext, final ContainerResponse cres) {
         cres.getHttpHeaders().add("Access-Control-Allow-Origin", "*");
         cres.getHttpHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        cres.getHttpHeaders().add("Access-Control-Max-Age", "1209600");
 
         String reqHead = requestContext.getHeaderValue("Access-Control-Request-Headers");
         if(null != reqHead && !reqHead.equals("")){
