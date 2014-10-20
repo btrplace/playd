@@ -22,7 +22,6 @@ public class Store {
         return JacksonDBCollection.wrap(Main.mongoDB.getCollection(UseCase.class.getSimpleName().toLowerCase()), UseCase.class, String.class);
     }
 
-    @Path("/")
     @POST
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
