@@ -29,7 +29,7 @@ public class CORSFilter implements ContainerResponseFilter {
         Response.ResponseBuilder crunchifyResponseBuilder = Response.fromResponse(cres.getResponse());
 
         // *(allow from all servers) OR http://crunchify.com/ OR http://example.com/
-        crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "http://crunchify.com/")
+        crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "*")
 
                 // As a part of the response to a request, which HTTP methods can be used during the actual request.
                 .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE, OPTIONS")
