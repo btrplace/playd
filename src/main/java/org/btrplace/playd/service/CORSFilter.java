@@ -15,24 +15,17 @@ public class CORSFilter implements ContainerResponseFilter {
 
     @Override
     public ContainerResponse filter(final ContainerRequest req, final ContainerResponse cres) {
-        Response.ResponseBuilder crunchifyResponseBuilder = Response.fromResponse(cres.getResponse());
+        Response.ResponseBuilder resp = Response.fromResponse(cres.getResponse());
+        resp.header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
-        crunchifyResponseBuilder.header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "API, GET, POST, PUT, UPDATE")
-                .header("Access-Control-Max-Age", "151200")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+        String reqHead = req.getHeaderValue("Access-Control-Request-Headers");
 
-        String crunchifyRequestHeader = req.getHeaderValue("Access-Control-Request-Headers");
-
-        if (null != crunchifyRequestHeader) {
-            System.out.println("allowed headers: " + crunchifyRequestHeader);
-            crunchifyResponseBuilder.header("Access-Control-Allow-Headers", crunchifyRequestHeader);
-        } else {
-            System.out.println("No fancy headers");
+        if(null != reqHead && !reqHead.equals("")){
+            resp.header("Access-Control-Allow-Headers", reqHead);
         }
 
-        cres.setResponse(crunchifyResponseBuilder.build());
-        System.err.println(cres);
+        cres.setResponse(resp.build());
         return cres;
     }
 

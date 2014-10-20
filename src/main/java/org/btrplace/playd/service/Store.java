@@ -15,22 +15,22 @@ import javax.ws.rs.core.Response;
 /**
  * @author Fabien Hermenier
  */
-@Path("/store/")
+@Path("/store")
 public class Store {
 
     private static JacksonDBCollection<UseCase, String> getJacksonDBCollection() {
         return JacksonDBCollection.wrap(Main.mongoDB.getCollection(UseCase.class.getSimpleName().toLowerCase()), UseCase.class, String.class);
     }
 
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @POST
     public Response add(@Context HttpContext context, UseCase uc) {
         WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
         String id = result.getSavedId();
-
-        //return Response.ok(id).build();
-        return Response.ok(id).header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS").build();
+        return Response.ok(id).build();
     }
+
 
     @Path("{key}")
     @GET
