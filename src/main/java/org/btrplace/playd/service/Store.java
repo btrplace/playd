@@ -31,8 +31,6 @@ public class Store {
         return Response.ok(id).build();
     } */
 
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
     @POST
     public Response add(String in) {
         JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
