@@ -81,13 +81,6 @@ public class UseCase {
         lastHit = System.currentTimeMillis();
     }
 
-    public String title() {
-        return title;
-    }
-
-    public String description() {
-        return description;
-    }
 
     public void hit() {
         hits++;
@@ -114,7 +107,7 @@ public class UseCase {
         StringBuilder res = new StringBuilder();
         res.append("{");
         res.append("\"key\":\"").append(key()).append("\",");
-        res.append("\"title\":\"").append(title()).append("\"");
+        res.append("\"title\":\"").append(getTitle()).append("\"");
         res.append("}");
         return res.toString();
     }
