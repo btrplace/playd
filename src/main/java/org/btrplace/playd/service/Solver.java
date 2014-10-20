@@ -34,7 +34,7 @@ public class Solver {
     private static ConstraintsCatalog catalog = makeCatalog();
 
     @OPTIONS
-    @Path("/*")
+    @Path("/solve")
     public Response getOptions() {
         return Response.ok()
                 .header("Access-Control-Allow-Origin", "*")
