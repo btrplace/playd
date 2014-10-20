@@ -32,6 +32,7 @@ public class CORSFilter implements ContainerResponseFilter {
         }
 
         cres.setResponse(crunchifyResponseBuilder.build());
+        System.out.println(cres);
         return cres;
     }
 

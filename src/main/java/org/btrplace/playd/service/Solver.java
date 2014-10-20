@@ -17,7 +17,6 @@ import org.btrplace.scheduler.SchedulerException;
 import org.btrplace.scheduler.choco.ChocoScheduler;
 import org.btrplace.scheduler.choco.DefaultChocoScheduler;
 
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,15 +31,6 @@ import java.io.StringReader;
 public class Solver {
 
     private static ConstraintsCatalog catalog = makeCatalog();
-
-    @OPTIONS
-    @Path("/solve")
-    public Response getOptions() {
-        return Response.ok()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
-    }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
