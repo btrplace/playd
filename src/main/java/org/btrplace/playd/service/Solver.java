@@ -106,6 +106,7 @@ public class Solver {
         c.add(new SeqBuilder());
         c.add(new MaxOnlineBuilder());
         c.add(new NoDelayBuilder());
+        c.add(new PreserveBuilder());
         return c;
     }
 }
