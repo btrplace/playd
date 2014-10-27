@@ -22,15 +22,6 @@ public class Store {
         return JacksonDBCollection.wrap(Main.mongoDB.getCollection(UseCase.class.getSimpleName().toLowerCase()), UseCase.class, String.class);
     }
 
-    /*@Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @POST
-    public Response add(@Context HttpContext context, UseCase uc) {
-        WriteResult<UseCase, String> result = getJacksonDBCollection().insert(uc);
-        String id = result.getSavedId();
-        return Response.ok(id).build();
-    } */
-
     @POST
     public Response add(String in) {
         JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
