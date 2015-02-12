@@ -78,22 +78,22 @@
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-api</artifactId>
-            <version>0.39</version>
+            <version>0.41</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-choco</artifactId>
-            <version>0.39</version>
+            <version>0.41</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-json</artifactId>
-            <version>0.39</version>
+            <version>0.41</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>btrpsl</artifactId>
-            <version>0.39</version>
+            <version>0.41</version>
         </dependency>
 
     </dependencies>

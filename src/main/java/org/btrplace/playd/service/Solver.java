@@ -12,10 +12,16 @@ import org.btrplace.json.model.ModelConverter;
 import org.btrplace.json.plan.ReconfigurationPlanConverter;
 import org.btrplace.model.Model;
 import org.btrplace.plan.ReconfigurationPlan;
+import org.btrplace.plan.event.BootNode;
+import org.btrplace.plan.event.MigrateVM;
+import org.btrplace.plan.event.ShutdownNode;
 import org.btrplace.playd.model.JSONErrorReporter;
 import org.btrplace.scheduler.SchedulerException;
 import org.btrplace.scheduler.choco.ChocoScheduler;
 import org.btrplace.scheduler.choco.DefaultChocoScheduler;
+import org.btrplace.scheduler.choco.duration.ConstantActionDuration;
+import org.btrplace.scheduler.choco.duration.DurationEvaluators;
+import org.btrplace.scheduler.choco.duration.LinearToAResourceActionDuration;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,6 +37,8 @@ import java.io.StringReader;
 public class Solver {
 
     private static ConstraintsCatalog catalog = makeCatalog();
+
+    private static DurationEvaluators durations = makeDurations();
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -60,8 +68,9 @@ public class Solver {
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
             ChocoScheduler scheduler = new DefaultChocoScheduler();
-            scheduler.doOptimize(false);
+            scheduler.doOptimize(true);
             scheduler.setTimeLimit(3);
+            //scheduler.setDurationEvaluators(durations);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             if (p == null) {
                 return Response.noContent().build();
@@ -108,5 +117,13 @@ public class Solver {
         c.add(new NoDelayBuilder());
         c.add(new PreserveBuilder());
         return c;
+    }
+
+    private static DurationEvaluators makeDurations() {
+        DurationEvaluators dev = DurationEvaluators.newBundle();
+        dev.register(MigrateVM.class, new LinearToAResourceActionDuration<>("mem", 1.0, 0));
+        dev.register(BootNode.class, new ConstantActionDuration<>(3));
+        dev.register(ShutdownNode.class, new ConstantActionDuration<>(3));
+        return dev;
     }
 }
