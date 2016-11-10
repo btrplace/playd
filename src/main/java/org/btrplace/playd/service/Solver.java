@@ -87,6 +87,7 @@ public class Solver {
             if (p == null) {
                 return Response.noContent().build();
             }
+            System.out.println(p);
             return Response.ok(rpc.toJSON(p)).build();
         } catch (ScriptBuilderException ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
