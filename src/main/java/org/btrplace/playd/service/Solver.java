@@ -72,7 +72,7 @@ public class Solver {
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
             ChocoScheduler scheduler = new DefaultChocoScheduler();
-            //scheduler.doOptimize(true);
+            scheduler.doOptimize(true);
             scheduler.setTimeLimit(3);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             System.out.println(scheduler.getStatistics());
