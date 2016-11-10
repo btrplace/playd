@@ -65,17 +65,17 @@ public class Solver {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
         }
 
+        ChocoScheduler scheduler = null;
         try {
             String source = json.get("script").toString();
             ScriptBuilder scrBuilder = new ScriptBuilder(mo);
             scrBuilder.setConstraintsCatalog(catalog);
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
-            ChocoScheduler scheduler = new DefaultChocoScheduler();
+            scheduler = new DefaultChocoScheduler();
             scheduler.doOptimize(true);
             scheduler.setTimeLimit(3);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
-            System.out.println(scheduler.getStatistics());
             if (p == null) {
                 return Response.noContent().build();
             }
@@ -84,6 +84,10 @@ public class Solver {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
         } catch (SchedulerException | JSONConverterException ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } finally {
+            if (scheduler != null) {
+                System.out.println(scheduler.getStatistics());
+            }
         }
     }
 
