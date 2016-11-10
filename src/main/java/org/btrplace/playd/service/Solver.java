@@ -62,7 +62,11 @@ public class Solver {
                 System.err.println("network");
                 withMigrationScheduling(mo);
             } else {
-                System.out.println(mo.getViews());
+                Network n = Network.get(mo);
+                System.out.println(n);
+                if (n != null) {
+                    mo.detach(n);
+                }
             }
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
