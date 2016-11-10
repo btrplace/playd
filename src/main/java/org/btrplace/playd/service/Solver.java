@@ -11,6 +11,7 @@ import org.btrplace.json.JSONConverterException;
 import org.btrplace.json.model.ModelConverter;
 import org.btrplace.json.plan.ReconfigurationPlanConverter;
 import org.btrplace.model.Model;
+import org.btrplace.model.view.network.Network;
 import org.btrplace.plan.ReconfigurationPlan;
 import org.btrplace.plan.event.BootNode;
 import org.btrplace.plan.event.MigrateVM;
@@ -53,6 +54,7 @@ public class Solver {
         try {
             json = parse(in);
             mo = moc.fromJSON((JSONObject) json.get("model"));
+            Network.createDefaultNetwork(mo, 1000);
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
