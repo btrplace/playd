@@ -53,10 +53,14 @@ public class Solver {
             return Response.status(Response.Status.BAD_REQUEST).entity("Missing 'instance' parameter").build();
         }
         JSONObject json;
+        JSONObject params;
         try {
             json = parse(in);
             mo = moc.fromJSON((JSONObject) json.get("model"));
-            withMigrationScheduling(mo);
+            params = (JSONObject) json.get("params");
+            if (params.get("network").equals(Boolean.TRUE)) {
+                withMigrationScheduling(mo);
+            }
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
@@ -73,7 +77,10 @@ public class Solver {
             scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
             Script s = scrBuilder.build(source);
             scheduler = new DefaultChocoScheduler();
-            scheduler.doOptimize(true);
+
+            scheduler.doOptimize(params.get("optimise").equals(Boolean.TRUE));
+            scheduler.doRepair(params.get("repair").equals(Boolean.TRUE));
+
             scheduler.setTimeLimit(3);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             if (p == null) {
