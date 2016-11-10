@@ -48,7 +48,7 @@ public class Solver {
     public Response solve(String in) {
         ModelConverter moc = new ModelConverter();
         ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
-        Model mo = null;
+        Model mo;
         if (in == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Missing 'instance' parameter").build();
         }
@@ -61,6 +61,8 @@ public class Solver {
             if (params.get("network").equals(Boolean.TRUE)) {
                 System.err.println("network");
                 withMigrationScheduling(mo);
+            } else {
+                System.out.println(mo.getViews());
             }
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
