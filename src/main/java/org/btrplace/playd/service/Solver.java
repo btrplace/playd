@@ -59,6 +59,7 @@ public class Solver {
             mo = moc.fromJSON((JSONObject) json.get("model"));
             params = (JSONObject) json.get("params");
             if (params.get("network").equals(Boolean.TRUE)) {
+                System.err.println("network");
                 withMigrationScheduling(mo);
             }
             //Preconditions check
