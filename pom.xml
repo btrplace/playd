@@ -23,6 +23,10 @@
     <version>1.0-SNAPSHOT</version>
     <name>playd</name>
     <url>http://github.com/btrplace/playd</url>
+
+    <properties>
+        <btrplace.version>1.2</btrplace.version>
+    </properties>
     <licenses>
         <license>
             <name>GNU Lesser General Public License v3</name>
@@ -78,22 +82,22 @@
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-api</artifactId>
-            <version>0.41</version>
+            <version>${btrplace.version}</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-choco</artifactId>
-            <version>0.41</version>
+            <version>${btrplace.version}</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>scheduler-json</artifactId>
-            <version>0.41</version>
+            <version>${btrplace.version}</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
             <artifactId>btrpsl</artifactId>
-            <version>0.41</version>
+            <version>${btrplace.version}</version>
         </dependency>
 
     </dependencies>
@@ -128,6 +132,13 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+                    <plugin>
+                        <groupId>org.apache.tomcat.maven</groupId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.0</version>
+                    </plugin>
         </plugins>
     </build>
 
