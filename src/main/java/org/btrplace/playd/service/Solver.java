@@ -81,10 +81,11 @@ public class Solver {
             Script s = scrBuilder.build(source);
             scheduler = new DefaultChocoScheduler();
 
+            scheduler.setDurationEvaluators(makeDurations());
             scheduler.doOptimize(params.get("optimise").equals(Boolean.TRUE));
             scheduler.doRepair(params.get("repair").equals(Boolean.TRUE));
-
             scheduler.setTimeLimit(3);
+
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             if (p == null) {
                 return Response.noContent().build();
