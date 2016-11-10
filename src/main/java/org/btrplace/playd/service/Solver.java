@@ -70,7 +70,6 @@ public class Solver {
             ChocoScheduler scheduler = new DefaultChocoScheduler();
             scheduler.doOptimize(true);
             scheduler.setTimeLimit(3);
-            //scheduler.setDurationEvaluators(durations);
             ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             System.out.println(scheduler.getStatistics());
             if (p == null) {
