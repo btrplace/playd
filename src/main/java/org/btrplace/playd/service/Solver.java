@@ -48,7 +48,7 @@ public class Solver {
     public Response solve(String in) {
         ModelConverter moc = new ModelConverter();
         ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
-        Model mo;
+        Model mo = null;
         if (in == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Missing 'instance' parameter").build();
         }
