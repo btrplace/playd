@@ -11,6 +11,8 @@ import org.btrplace.json.JSONConverterException;
 import org.btrplace.json.model.ModelConverter;
 import org.btrplace.json.plan.ReconfigurationPlanConverter;
 import org.btrplace.model.Model;
+import org.btrplace.model.VM;
+import org.btrplace.model.view.ShareableResource;
 import org.btrplace.model.view.network.Network;
 import org.btrplace.plan.ReconfigurationPlan;
 import org.btrplace.plan.event.BootNode;
@@ -54,7 +56,7 @@ public class Solver {
         try {
             json = parse(in);
             mo = moc.fromJSON((JSONObject) json.get("model"));
-            Network.createDefaultNetwork(mo, 1000);
+            withMigrationScheduling(mo);
             //Preconditions check
             if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
@@ -82,6 +84,17 @@ public class Solver {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
         } catch (SchedulerException | JSONConverterException ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+    }
+
+    private void withMigrationScheduling(Model mo) {
+        ShareableResource mem =ShareableResource.get(mo, "mem");
+        Network.createDefaultNetwork(mo, 1000);
+        for (VM v : mo.getMapping().getAllVMs()) {
+            mo.getAttributes().put(v, "memUsed", mem.getConsumption(v)); // 8 GiB
+            mo.getAttributes().put(v, "hotDirtySize", 56); // 56 MiB
+            mo.getAttributes().put(v, "hotDirtyDuration", 2); // 2 sec.
+            mo.getAttributes().put(v, "coldDirtyRate", 22.6); // 22.6 MiB/sec.
         }
     }
 
