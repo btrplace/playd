@@ -157,8 +157,8 @@ public class Solver {
     private static DurationEvaluators makeDurations() {
         DurationEvaluators dev = DurationEvaluators.newBundle();
         dev.register(MigrateVM.class, new LinearToAResourceActionDuration<>("mem", 1.0, 0));
-        dev.register(BootNode.class, new ConstantActionDuration<>(3));
-        dev.register(ShutdownNode.class, new ConstantActionDuration<>(3));
+        //dev.register(BootNode.class, new ConstantActionDuration<>(3));
+        //dev.register(ShutdownNode.class, new ConstantActionDuration<>(3));
         return dev;
     }
 }
