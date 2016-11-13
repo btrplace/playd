@@ -109,7 +109,7 @@ public class Solver {
 
     private void withMigrationScheduling(Model mo) {
         ShareableResource mem =ShareableResource.get(mo, "mem");
-        Network.createDefaultNetwork(mo, 1000);
+        Network.createDefaultNetwork(mo, 10000);
         for (VM v : mo.getMapping().getAllVMs()) {
             mo.getAttributes().put(v, "memUsed", mem.getConsumption(v) * 1000); // 8 GiB
             mo.getAttributes().put(v, "hotDirtySize", 56); // 56 MiB
