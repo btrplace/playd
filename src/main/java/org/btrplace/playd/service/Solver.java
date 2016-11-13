@@ -111,7 +111,7 @@ public class Solver {
         ShareableResource mem =ShareableResource.get(mo, "mem");
         Network.createDefaultNetwork(mo, 1000);
         for (VM v : mo.getMapping().getAllVMs()) {
-            mo.getAttributes().put(v, "memUsed", mem.getConsumption(v)); // 8 GiB
+            mo.getAttributes().put(v, "memUsed", mem.getConsumption(v) * 1000); // 8 GiB
             mo.getAttributes().put(v, "hotDirtySize", 56); // 56 MiB
             mo.getAttributes().put(v, "hotDirtyDuration", 2); // 2 sec.
             mo.getAttributes().put(v, "coldDirtyRate", 22.6); // 22.6 MiB/sec.
@@ -156,7 +156,7 @@ public class Solver {
 
     private static DurationEvaluators makeDurations() {
         DurationEvaluators dev = DurationEvaluators.newBundle();
-        dev.register(MigrateVM.class, new LinearToAResourceActionDuration<>("mem", 1.0, 0));
+        //dev.register(MigrateVM.class, new LinearToAResourceActionDuration<>("mem", 1.0, 0));
         //dev.register(BootNode.class, new ConstantActionDuration<>(3));
         //dev.register(ShutdownNode.class, new ConstantActionDuration<>(3));
         return dev;
