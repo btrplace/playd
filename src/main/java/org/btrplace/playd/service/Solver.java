@@ -60,7 +60,6 @@ public class Solver {
             if (p == null) {
                 return Response.noContent().build();
             }
-            System.out.println(p);
             return Response.ok(rpc.toJSON(p)).build();
         } catch (JSONConverterException | ParseException ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -80,7 +79,6 @@ public class Solver {
         }
         //First solve
         ReconfigurationPlan p = solve(i, getParams(params));
-
         //Now we compute the mostly exact durations, and redo.
         Network net = new Network();
         Switch mainSwitch = net.newSwitch(); // Main non-blocking switch
@@ -125,7 +123,7 @@ public class Solver {
             mo.getAttributes().put(v, "hotDirtyDuration", 2); // 2 sec.
             mo.getAttributes().put(v, "coldDirtyRate", 22.6); // 22.6 MiB/sec.
         }
-        
+
         return new Instance(mo, cstrs, new MinMTTR());
     }
 
@@ -139,11 +137,15 @@ public class Solver {
 
     private ReconfigurationPlan solve(Instance i, Parameters ps) {
         DefaultChocoScheduler scheduler = new DefaultChocoScheduler(ps);
-        ReconfigurationPlan p = scheduler.solve(i);
-        if (p != null) {
+        try {
+            ReconfigurationPlan p = scheduler.solve(i);
+            if (p != null) {
+                System.out.println(p);
+            }
+            return p;
+        } finally {
             System.out.println(scheduler.getStatistics());
         }
-        return p;
     }
 
     private ReconfigurationPlan withMigrationScheduling(Instance i, JSONObject params) {
