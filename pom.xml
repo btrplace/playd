@@ -26,6 +26,8 @@
 
     <properties>
         <btrplace.version>1.2</btrplace.version>
+        <jersey.version>1.19.3</jersey.version>
+        <jetty.version>9.4.0.RC1</jetty.version>
     </properties>
     <licenses>
         <license>
@@ -57,27 +59,27 @@
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>1.18.1</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
-            <version>1.18.1</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-json</artifactId>
-            <version>1.18.1</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>9.3.0.M0</version>
+            <artifactId>jetty-servlets</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.3.0.M0</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.btrplace</groupId>
