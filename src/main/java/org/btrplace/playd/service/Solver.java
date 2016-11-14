@@ -77,6 +77,7 @@ public class Solver {
             mo.detach(Network.get(mo));
         }
         //First solve
+        System.out.println("---- Stage without network ----");
         ReconfigurationPlan p = solve(i, getParams(params));
         //Now we compute the mostly exact durations, and redo.
         Network net = new Network();
@@ -102,6 +103,7 @@ public class Solver {
                 i.getSatConstraints().add(new Root(vm));
             }
         }
+        System.out.println("---- Fixing with the network ----");
         return solve(i, getParams(params));
     }
 

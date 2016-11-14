@@ -20,7 +20,7 @@ public class CORSFilter implements ContainerResponseFilter {
     public ContainerResponse filter(final ContainerRequest req, final ContainerResponse cres) {
         Response.ResponseBuilder resp = Response.fromResponse(cres.getResponse());
         resp.header("Access-Control-Allow-Origin", "*")
-                    .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
         String reqHead = req.getHeaderValue("Access-Control-Request-Headers");
         System.out.println("Head:" + reqHead);
