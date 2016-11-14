@@ -47,16 +47,22 @@ public class Store {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("key") String key) {
-        if (!ObjectId.isValid(key)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try {
+            if (!ObjectId.isValid(key)) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            UseCase uc = getJacksonDBCollection().findOneById(key);
+            if (uc == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            uc.hit();
+            getJacksonDBCollection().updateById(key, uc);
+            return Response.ok(uc).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().build();
         }
-        UseCase uc = getJacksonDBCollection().findOneById(key);
-        if (uc == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        uc.hit();
-        getJacksonDBCollection().updateById(key, uc);
-        return Response.ok(uc).build();
+
     }
 
 }
