@@ -13,6 +13,9 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CORSFilter implements ContainerResponseFilter {
 
+    public CORSFilter() {
+        System.err.println("Hop");
+    }
     @Override
     public ContainerResponse filter(final ContainerRequest req, final ContainerResponse cres) {
         Response.ResponseBuilder resp = Response.fromResponse(cres.getResponse());
