@@ -20,7 +20,7 @@ public class CORSFilter implements ContainerResponseFilter {
                 .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 
         String reqHead = req.getHeaderValue("Access-Control-Request-Headers");
-
+        System.out.println("Head:" + reqHead);
         if(null != reqHead && !reqHead.equals("")){
             resp.header("Access-Control-Allow-Headers", reqHead);
         }
