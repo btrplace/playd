@@ -39,7 +39,7 @@ public class Solver {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response solve(String in) {
-        ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
+        /*ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
 
         try {
             JSONObject json = parse(in);
@@ -67,7 +67,8 @@ public class Solver {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
         } catch (SchedulerException ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        }
+        }*/
+        return Response.ok().build();
     }
 
 
