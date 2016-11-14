@@ -1,30 +1,21 @@
 package org.btrplace.playd.service;
 
 import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-import org.btrplace.btrpsl.Script;
-import org.btrplace.btrpsl.ScriptBuilder;
-import org.btrplace.btrpsl.ScriptBuilderException;
+import net.minidev.json.parser.*;
+import org.btrplace.btrpsl.*;
 import org.btrplace.btrpsl.constraint.*;
 import org.btrplace.json.JSONConverterException;
 import org.btrplace.json.model.ModelConverter;
 import org.btrplace.json.plan.ReconfigurationPlanConverter;
-import org.btrplace.model.Model;
-import org.btrplace.model.VM;
+import org.btrplace.model.*;
+import org.btrplace.model.constraint.*;
 import org.btrplace.model.view.ShareableResource;
-import org.btrplace.model.view.network.Network;
+import org.btrplace.model.view.network.*;
 import org.btrplace.plan.ReconfigurationPlan;
-import org.btrplace.plan.event.BootNode;
-import org.btrplace.plan.event.MigrateVM;
-import org.btrplace.plan.event.ShutdownNode;
+import org.btrplace.plan.event.*;
 import org.btrplace.playd.model.JSONErrorReporter;
 import org.btrplace.scheduler.SchedulerException;
-import org.btrplace.scheduler.choco.ChocoScheduler;
-import org.btrplace.scheduler.choco.DefaultChocoScheduler;
-import org.btrplace.scheduler.choco.duration.ConstantActionDuration;
-import org.btrplace.scheduler.choco.duration.DurationEvaluators;
-import org.btrplace.scheduler.choco.duration.LinearToAResourceActionDuration;
+import org.btrplace.scheduler.choco.*;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -32,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.StringReader;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Fabien Hermenier
@@ -41,82 +34,123 @@ public class Solver {
 
     private static ConstraintsCatalog catalog = makeCatalog();
 
-    private static DurationEvaluators durations = makeDurations();
+    public static final int BANDWIDTH = 10000;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response solve(String in) {
-        ModelConverter moc = new ModelConverter();
         ReconfigurationPlanConverter rpc = new ReconfigurationPlanConverter();
-        Model mo;
-        if (in == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Missing 'instance' parameter").build();
-        }
-        JSONObject json;
-        JSONObject params;
+
         try {
-            json = parse(in);
-            mo = moc.fromJSON((JSONObject) json.get("model"));
-            params = (JSONObject) json.get("params");
-            if (params.get("network").equals(Boolean.TRUE)) {
-                System.err.println("network");
-                withMigrationScheduling(mo);
-            } else {
-                Network n = Network.get(mo);
-                System.out.println(n);
-                if (n != null) {
-                    mo.detach(n);
-                }
-            }
+            JSONObject json = parse(in);
+            JSONObject params = (JSONObject) json.get("params");
+            Instance i = newInstance(json);
             //Preconditions check
-            if (mo.getMapping().getNbNodes() > 8 || mo.getMapping().getNbVMs() > 20) {
+            if (i.getModel().getMapping().getNbNodes() > 8 || i.getModel().getMapping().getNbVMs() > 20) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Instances cannot exceed 8 nodes and 20 VMs").build();
             }
-        } catch (JSONConverterException | ParseException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        }
 
-        ChocoScheduler scheduler = null;
-        try {
-            String source = json.get("script").toString();
-            ScriptBuilder scrBuilder = new ScriptBuilder(mo);
-            scrBuilder.setConstraintsCatalog(catalog);
-            scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
-            Script s = scrBuilder.build(source);
-            scheduler = new DefaultChocoScheduler();
+            ReconfigurationPlan p;
+            if (params.get("network").equals(Boolean.TRUE)) {
+                p = withMigrationScheduling(i, params);
+            } else {
+                p = withoutMigrationScheduling(i, params);
+            }
 
-            //scheduler.setDurationEvaluators(makeDurations());
-            scheduler.doOptimize(params.get("optimise").equals(Boolean.TRUE));
-            scheduler.doRepair(params.get("repair").equals(Boolean.TRUE));
-            scheduler.setTimeLimit(3);
-
-            ReconfigurationPlan p = scheduler.solve(mo, s.getConstraints());
             if (p == null) {
                 return Response.noContent().build();
             }
             System.out.println(p);
             return Response.ok(rpc.toJSON(p)).build();
+        } catch (JSONConverterException | ParseException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
         } catch (ScriptBuilderException ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getErrorReporter().toString()).build();
-        } catch (SchedulerException | JSONConverterException ex) {
+        } catch (SchedulerException ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        } finally {
-            if (scheduler != null) {
-                System.out.println(scheduler.getStatistics());
-            }
         }
     }
 
-    private void withMigrationScheduling(Model mo) {
-        ShareableResource mem =ShareableResource.get(mo, "mem");
-        Network.createDefaultNetwork(mo, 10000);
+
+    private ReconfigurationPlan withoutMigrationScheduling(Instance i, JSONObject params) {
+        //Detach the view because of a bug I don't solve now
+        Model mo = i.getModel();
+        if (Network.get(mo) != null) {
+            mo.detach(Network.get(mo));
+        }
+        //First solve
+        ReconfigurationPlan p = solve(i, getParams(params));
+
+        //Now we compute the mostly exact durations, and redo.
+        Network net = new Network();
+        Switch mainSwitch = net.newSwitch(); // Main non-blocking switch
+        for (Node n : i.getModel().getMapping().getAllNodes()) {
+            net.connect(BANDWIDTH, mainSwitch, n); // Connect all nodes with 1Gbit/s links
+        }
+        Parameters ps = getParams(params);
+        List<MigrateVM> migs = p.getActions().stream().
+                filter(a -> a instanceof MigrateVM).map(a -> (MigrateVM) a).collect(Collectors.toList());
+        ps.getDurationEvaluators().register(MigrateVM.class, new MigrationEvaluator(i.getModel(), migs));
+
+        //Force the destinations
+        Model result = p.getResult();
+        Model src = p.getOrigin();
+        for (Action a : p.getActions()) {
+            if (a instanceof MigrateVM) {
+                i.getSatConstraints().add(new Fence(((MigrateVM)a).getVM(), Collections.singleton(((MigrateVM)a).getDestinationNode())));
+            }
+        }
+        for (VM vm : mo.getMapping().getRunningVMs()) {
+            if (src.getMapping().getVMLocation(vm).equals(result.getMapping().getVMLocation(vm))) {
+                i.getSatConstraints().add(new Root(vm));
+            }
+        }
+        return solve(i, getParams(params));
+    }
+
+    private Instance newInstance(JSONObject json) throws JSONConverterException, ScriptBuilderException {
+        ModelConverter moc = new ModelConverter();
+        Model mo = moc.fromJSON((JSONObject) json.get("model"));
+        String source = json.get("script").toString();
+        ScriptBuilder scrBuilder = new ScriptBuilder(mo);
+        scrBuilder.setConstraintsCatalog(catalog);
+        scrBuilder.setErrorReporterBuilder(new JSONErrorReporter.Builder());
+        Script s = scrBuilder.build(source);
+        Set<SatConstraint> cstrs = s.getConstraints();
+
+        ShareableResource mem = ShareableResource.get(mo, "mem");
         for (VM v : mo.getMapping().getAllVMs()) {
             mo.getAttributes().put(v, "memUsed", mem.getConsumption(v) * 1000); // 8 GiB
             mo.getAttributes().put(v, "hotDirtySize", 56); // 56 MiB
             mo.getAttributes().put(v, "hotDirtyDuration", 2); // 2 sec.
             mo.getAttributes().put(v, "coldDirtyRate", 22.6); // 22.6 MiB/sec.
         }
+        
+        return new Instance(mo, cstrs, new MinMTTR());
     }
+
+    private Parameters getParams(JSONObject json) {
+        Parameters ps = new DefaultParameters();
+        ps.doOptimize(json.get("optimise").equals(Boolean.TRUE));
+        ps.doRepair(json.get("repair").equals(Boolean.TRUE));
+        ps.setTimeLimit(3);
+        return ps;
+    }
+
+    private ReconfigurationPlan solve(Instance i, Parameters ps) {
+        DefaultChocoScheduler scheduler = new DefaultChocoScheduler(ps);
+        ReconfigurationPlan p = scheduler.solve(i);
+        if (p != null) {
+            System.out.println(scheduler.getStatistics());
+        }
+        return p;
+    }
+
+    private ReconfigurationPlan withMigrationScheduling(Instance i, JSONObject params) {
+        Network.createDefaultNetwork(i.getModel(), 10000);
+        return solve(i, getParams(params));
+    }
+
 
     private JSONObject parse(String json) throws ParseException, JSONConverterException {
         JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
@@ -152,13 +186,5 @@ public class Solver {
         c.add(new NoDelayBuilder());
         c.add(new PreserveBuilder());
         return c;
-    }
-
-    private static DurationEvaluators makeDurations() {
-        DurationEvaluators dev = DurationEvaluators.newBundle();
-        //dev.register(MigrateVM.class, new LinearToAResourceActionDuration<>("mem", 1.0, 0));
-        //dev.register(BootNode.class, new ConstantActionDuration<>(3));
-        //dev.register(ShutdownNode.class, new ConstantActionDuration<>(3));
-        return dev;
     }
 }
