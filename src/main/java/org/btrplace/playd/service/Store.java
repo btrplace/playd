@@ -59,8 +59,7 @@ public class Store {
             getJacksonDBCollection().updateById(key, uc);
             return Response.ok(uc).build();
         } catch (Exception e) {
-            e.printStackTrace();
-            return Response.serverError().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
     }
