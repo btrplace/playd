@@ -14,7 +14,6 @@ import org.btrplace.model.view.network.*;
 import org.btrplace.plan.ReconfigurationPlan;
 import org.btrplace.plan.event.*;
 import org.btrplace.playd.model.JSONErrorReporter;
-import org.btrplace.scheduler.SchedulerException;
 import org.btrplace.scheduler.choco.*;
 
 import javax.ws.rs.POST;
